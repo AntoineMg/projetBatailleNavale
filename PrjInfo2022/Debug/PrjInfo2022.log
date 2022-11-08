@@ -1,0 +1,6 @@
+﻿  main.cpp
+c:\users\morierga\desktop\prjinfo2022\main.cpp(61): warning C4244: 'argument' : conversion de 'time_t' en 'unsigned int', perte possible de données
+c:\users\morierga\desktop\prjinfo2022\main.cpp(128): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1274): note: voir la déclaration de 'scanf'
+c:\users\morierga\desktop\prjinfo2022\main.cpp(141): warning C4326: le type de retour de 'main' doit être 'int' au lieu de 'void'
+  PrjInfo2022.vcxproj -> C:\Users\morierga\Desktop\PrjInfo2022\Debug\PrjInfo2022.exe
