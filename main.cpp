@@ -1,4 +1,4 @@
-﻿#include "PrjInfo2022.h"
+#include "PrjInfo2022.h"
 #define LIGNES 6
 #define COLONNES 6
 #define N_BATEAUX 2
@@ -14,7 +14,9 @@ int iBcl2; // compteur de boucle n3
 int l_int_ligne = 0; // 
 int l_int_colonne = 0;
 bool l_bool_bateauxPlaces = 0;
-char l_char_choix[2];
+int l_int_choix[2];
+int l_int_coordX;
+int l_int_coordY;
 bool l_bool_direction; //l_bool_direction 0 pour vertical et 1 pour horizontal
 TCase l_enrTab_Mer1[LIGNES][COLONNES];
 
@@ -117,13 +119,18 @@ TCoord demandeJoueur(void) {
 
 	//demande de saisie utilisateur tant que il n a pas saisi de valeur correcte (ex : A5 / D2 / C4 / ... )
 	do {
-		printf("Saisir la case : ");
-		scanf("%c", &l_char_choix);
-	} while ((l_char_choix[0] < 65) || (l_char_choix[0] > 70) || (l_char_choix[1] < 1) || (l_char_choix[1] > 6));
-	
+		printf("Saisir la ligne : \n");
+		l_int_coordY = getchar();
+	} while ((l_int_coordY <= 64) || (l_int_coordY > 70));
+
+	do{
+		printf("Saisir la colonne : \n");
+		scanf("%i", &l_int_coordX);
+	} while ((l_int_coordX < 1) || (l_int_coordX > 6));
+
 	//assignation des valeurs saisies a l_enr case
-	l_enr_case.m_int_ligne = l_char_choix[0] - 65;
-	l_enr_case.m_int_colonne = l_char_choix[1];
+	l_enr_case.m_int_ligne = l_int_coordY - 65;
+	l_enr_case.m_int_colonne = l_int_coordX;
 
 	//retourne l_enr_case sous forme de Tcoord
 	return(l_enr_case);
@@ -138,22 +145,19 @@ void main(void) {
 	afficheMer();
 	demandeJoueur();
 
-	printf("Saisir les coordonnees : \n");
-	l_int_coordY = getchar();
-	scanf("%i", &l_int_coordX);
-	l_int_coordY = l_int_coordY - 65;
-	l_int_coordX = l_int_coordX + 1;
+	TCoord l_enr_essai = demandeJoueur();
 
-	if (l_enrTab_Mer1[l_int_coordY][l_int_coordX].m_int_bateau == 1) {
+	if (l_enrTab_Mer1[l_enr_essai.m_int_ligne][l_enr_essai.m_int_colonne].m_int_bateau == 1) {
 		printf("Touche\n");
 	}
 	else {
 		printf("Loupe\n");
-
 	}
-	printf("Coord X = %i", l_int_coordX);
-	printf("Coord Y = %i", l_int_coordY);
-	
+
+	//Debug
+	printf("Coord ligne = %i", l_enr_essai.m_int_ligne);
+	printf("Coord colonne = %i", l_enr_essai.m_int_colonne);
+
 }
 
 
