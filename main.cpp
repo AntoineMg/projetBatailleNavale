@@ -133,13 +133,26 @@ TCoord demandeJoueur(void) {
 
 void main(void) {
 	//Declarations variables main
-	
 
-	
 	placeBateau();
 	afficheMer();
 	demandeJoueur();
-	
+
+	printf("Saisir les coordonnees : \n");
+	l_int_coordY = getchar();
+	scanf("%i", &l_int_coordX);
+	l_int_coordY = l_int_coordY - 65;
+	l_int_coordX = l_int_coordX + 1;
+
+	if (l_enrTab_Mer1[l_int_coordY][l_int_coordX].m_int_bateau == 1) {
+		printf("Touche\n");
+	}
+	else {
+		printf("Loupe\n");
+
+	}
+	printf("Coord X = %i", l_int_coordX);
+	printf("Coord Y = %i", l_int_coordY);
 	
 }
 
