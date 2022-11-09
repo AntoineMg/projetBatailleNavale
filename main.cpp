@@ -20,10 +20,20 @@ int l_int_choix[2];
 int l_int_coordX;
 int l_int_coordY;
 int l_int_regle;
-int l_int_tentative;
+int l_int_tentatives;
+//Variables Temps
+int l_int_timeDebut;
+int l_int_timeFin;
+int l_int_time;
+int l_int_minutes;
+int l_int_secondes;
+/////
+bool l_boolTab_Coules[] = { 0,0 };
+int l_int_coules = 0;
+int l_int_coulesAns = 0;
 bool l_bool_direction; //l_bool_direction 0 pour vertical et 1 pour horizontal
 TCase l_enrTab_Mer1[LIGNES][COLONNES];
-TCase l_enrTab_Mer1D[LIGNES][COLONNES];
+TCase l_enrTab_Mer2[LIGNES][COLONNES];
 TBateau l_enr_Bateaux[N_BATEAUX];
 //mer1D = version affichee a l'utilisateur
 
@@ -167,14 +177,17 @@ void placeBateau(void) {
 	}
 }
 
-//fonctionne parfsois ex pour E456
-bool checkCoule(void) {
+//fonctionne parfsois ex pour E456 et pour CDE4 et pour A234
+void checkCoule(void) {
+	l_int_coules = 0;
 	for (iBcl1 = 0; iBcl1 < N_BATEAUX; iBcl1++) {
-		if ((l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne].m_bool_touche == 1)) {
-			return(1);
+		if ((l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne].m_bool_touche == 1)) {
+			l_boolTab_Coules[iBcl] = 1;
 		}
-		else {
-			return(0);
+	}
+	for (iBcl2 = 0; iBcl2 < N_BATEAUX; iBcl2++) {
+		if (l_boolTab_Coules[iBcl2] == 1) {
+			l_int_coules++;
 		}
 	}
 }
@@ -211,12 +224,12 @@ bool checkCase(TCoord l_enr_essai) {
 		//printf("Touche\n");
 		l_enrTab_Mer1[l_enr_essai.m_int_ligne][l_enr_essai.m_int_colonne].m_bool_touche = 1;
 		l_int_points++;
-		l_int_tentative++;
+		l_int_tentatives++;
 		return(1);
 	}
 	else {
 		//printf("Loupe\n");
-		l_int_tentative++;
+		l_int_tentatives++;
 		return(0);
 	}
 }
@@ -261,13 +274,18 @@ void main(void) {
 	afficheMerDebug();
 	Sleep(3000);
 
+	//Debut du chrono
+	l_int_timeDebut = GetTickCount();
+
 	//Tant que le joueur n'a pas gagne le jeu continue
 	while (l_int_points < N_BATEAUX * 3) {
 		TCoord l_enr_saisie = demandeJoueur();
 		//Si le bateau est touche on affiche touche ou coule
 		if (checkCase(l_enr_saisie)) {
 			//si le bateau est coule on affiche coule
-			if(checkCoule()){
+			checkCoule();
+			if(l_int_coules>l_int_coulesAns){
+				l_int_coulesAns = l_int_coules;
 				system("CLS");
 				afficheMer();
 				printf("Coule !\n");
@@ -294,5 +312,16 @@ void main(void) {
 
 	}
 
+
+	//Obtention de la duree de la partie
+	l_int_timeFin = GetTickCount();
+	l_int_time = l_int_timeFin - l_int_timeDebut;
+	l_int_minutes = l_int_time / 60000; //60*1000
+	l_int_secondes = (l_int_time - (60000 * l_int_minutes)) / 1000;
+
+	//affichage ecran victoire
+	printf("Gagne\n");
+	//nb tentatives
+	printf("Vous avez effectue %i tentatives en une duree de %i minutes et %i secondes", l_int_tentatives, l_int_minutes, l_int_secondes);
 
 }
