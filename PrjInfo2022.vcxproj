@@ -24,7 +24,6 @@
     <ClCompile Include="PrjInfo2022.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="color.h" />
     <ClInclude Include="PrjInfo2022.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

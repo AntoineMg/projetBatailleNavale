@@ -20,9 +20,11 @@ int l_int_choix[2];
 int l_int_coordX;
 int l_int_coordY;
 int l_int_regle;
+int l_int_tentative;
 bool l_bool_direction; //l_bool_direction 0 pour vertical et 1 pour horizontal
 TCase l_enrTab_Mer1[LIGNES][COLONNES];
 TCase l_enrTab_Mer1D[LIGNES][COLONNES];
+TBateau l_enr_Bateaux[N_BATEAUX];
 //mer1D = version affichee a l'utilisateur
 
 //fonction qui initialise toutes les cases de la mer a 0
@@ -35,6 +37,8 @@ void initCases(void) {
 		}
 	}
 }
+
+/*
 //FUSIONNER CES 2 FONCTIONS
 void initCases2(void) {
 	//initialisation de toutes les cases a 0
@@ -45,6 +49,7 @@ void initCases2(void) {
 		}
 	}
 }
+*/
 
 //DEBUG
 void afficheMerDebug(void) {
@@ -78,11 +83,11 @@ void afficheMer(void) {
 	//boucle for pour afficher les lignes en couleur 2 ainsi que l'en tete de chaque ligne en couleur 1
 	for (iBcl1 = 0; iBcl1 < LIGNES; iBcl1++) {
 		Color(COLOR_1);
-		printf("%c  ",iBcl1+65);
+		printf("%c  ", iBcl1 + 65);
 		Color(COLOR_2);
 		//boucle for pour afficher les colonnes
 		for (iBcl2 = 0; iBcl2 < COLONNES; iBcl2++) {
-			printf("%i ", l_enrTab_Mer1D[iBcl1][iBcl2].m_int_bateau);
+			printf("%i ", l_enrTab_Mer1[iBcl1][iBcl2].m_bool_touche);
 		}
 		//retour a la ligne pour rendre le resultat plus clean
 		printf("\n");
@@ -98,14 +103,14 @@ void placeBateau(void) {
 
 	//boucle pour generer un certain nombre de bateau
 	for (iBcl1 = 0; iBcl1 < N_BATEAUX; iBcl1++) {
-		
+
 		//determination aleatoire de la direction du bateau
 		l_bool_direction = rand() % 2;
 		l_bool_bateauxPlaces = 0;
 
 		//execution fonction placement si bateau vertical
 		if (l_bool_direction == 0) {
-			
+
 			//replace le bateau tant que celui-ci n'est pas dans une case libre
 			do {
 
@@ -119,17 +124,24 @@ void placeBateau(void) {
 					l_enrTab_Mer1[l_int_ligne][l_int_colonne].m_int_bateau = 1;
 					l_enrTab_Mer1[l_int_ligne + 1][l_int_colonne].m_int_bateau = 1;
 					l_enrTab_Mer1[l_int_ligne + 2][l_int_colonne].m_int_bateau = 1;
+					//stockage du bateau
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne = l_int_ligne+1;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne = l_int_ligne+2;
 					//confirmation que le bateau est place
 					l_bool_bateauxPlaces = 1;
 				}
 			} while (l_bool_bateauxPlaces == 0);
-				
+
 		}
 
 		//execution fonction placement si bateau horizontal
 		else {
-			
-			do{
+
+			do {
 				//determination aleatoire de la premiere case du bateau
 				l_int_ligne = rand() % 6;
 				l_int_colonne = rand() % 4;
@@ -140,10 +152,29 @@ void placeBateau(void) {
 					l_enrTab_Mer1[l_int_ligne][l_int_colonne].m_int_bateau = 1;
 					l_enrTab_Mer1[l_int_ligne][l_int_colonne + 1].m_int_bateau = 1;
 					l_enrTab_Mer1[l_int_ligne][l_int_colonne + 2].m_int_bateau = 1;
+					//Stockage du bateau
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne = l_int_colonne+1;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne = l_int_colonne+2;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne = l_int_ligne;
 					//confirmation que le bateau est place
 					l_bool_bateauxPlaces = 1;
 				}
 			} while (l_bool_bateauxPlaces == 0);
+		}
+	}
+}
+
+//fonctionne parfsois ex pour E456
+bool checkCoule(void) {
+	for (iBcl1 = 0; iBcl1 < N_BATEAUX; iBcl1++) {
+		if ((l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne].m_bool_touche == 1) && (l_enrTab_Mer1[l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne].m_bool_touche == 1)) {
+			return(1);
+		}
+		else {
+			return(0);
 		}
 	}
 }
@@ -157,8 +188,8 @@ TCoord demandeJoueur(void) {
 	//demande de saisie utilisateur tant que il n a pas saisi de valeur correcte (ex : A5 / D2 / C4 / ... )
 	do {
 		printf("Saisir la ligne : \n");
-		scanf_s("%c", &l_int_coordY);
-		printf("%i", l_int_coordY);
+		l_int_coordY = _getch();
+		//scanf_s("%c", &l_int_coordY);
 	} while (int((l_int_coordY) < 97) || (int(l_int_coordY) > 102));
 
 	do {
@@ -169,7 +200,7 @@ TCoord demandeJoueur(void) {
 	//assignation des valeurs saisies a l_enr case
 	//-1 car decalage index
 	l_enr_case.m_int_ligne = l_int_coordY - 97;
-	l_enr_case.m_int_colonne = l_int_coordX-1;
+	l_enr_case.m_int_colonne = l_int_coordX - 1;
 
 	//retourne l_enr_case sous forme de Tcoord
 	return(l_enr_case);
@@ -180,10 +211,12 @@ bool checkCase(TCoord l_enr_essai) {
 		//printf("Touche\n");
 		l_enrTab_Mer1[l_enr_essai.m_int_ligne][l_enr_essai.m_int_colonne].m_bool_touche = 1;
 		l_int_points++;
+		l_int_tentative++;
 		return(1);
 	}
 	else {
 		//printf("Loupe\n");
+		l_int_tentative++;
 		return(0);
 	}
 }
@@ -202,6 +235,17 @@ void regles(void) {
 	else {
 		printf("C'est parti !\n");
 	}
+	printf("Combien de joueur ? \n");
+	Sleep(500);
+	//TRANSFORMER EN SWITCH
+	printf("1 \n2 \n");
+	l_int_regle = _getch();
+	if (l_int_regle == '1') {
+		printf("Bonne chance ;)\n");
+	}
+	else {
+		printf("Joueur 1, Tu vas placer tes bateaux \n");
+	}
 }
 
 void main(void) {
@@ -214,26 +258,40 @@ void main(void) {
 	Sleep(3000);
 	system("CLS");
 
-	//afficheMer();
+	afficheMerDebug();
+	Sleep(3000);
 
 	//Tant que le joueur n'a pas gagne le jeu continue
-	while (l_int_points < N_BATEAUX*3) {
+	while (l_int_points < N_BATEAUX * 3) {
 		TCoord l_enr_saisie = demandeJoueur();
+		//Si le bateau est touche on affiche touche ou coule
 		if (checkCase(l_enr_saisie)) {
-			system("CLS");
-			afficheMer();
-			printf("Touche !\n");
-			printf("%i points");
-		}
+			//si le bateau est coule on affiche coule
+			if(checkCoule()){
+				system("CLS");
+				afficheMer();
+				printf("Coule !\n");
+				printf("%i points\n", l_int_points);
+			}
 
+			//Si non on affiche seulement touche
+			else {
+				system("CLS");
+				afficheMer();
+				printf("Touche !\n");
+				printf("%i points\n", l_int_points);
+			}
+		}
+		
+		//Si non on affiche Rate
 		else {
 			system("CLS");
 			afficheMer();
 			printf("Rate !\n");
-			printf("%i points");
+			printf("%i points\n", l_int_points);
 		}
 
-		
+
 	}
 
 
