@@ -1,9 +1,13 @@
 #include "PrjInfo2022.h"
+
 #define LIGNES 6
 #define COLONNES 6
 #define N_BATEAUX 2
 #define COLOR_1 15
 #define COLOR_2 3
+#define TEMPS 50
+#define TEMPS2 200
+#define TAILLE 4
 
 
 //Declarations variables globales
@@ -11,6 +15,7 @@ int echecs = 0; //var debug
 int iBcl; // compteur de boucle
 int iBcl1; // compteur de boucle n2
 int iBcl2; // compteur de boucle n3
+int iBcl3; // compteur de boucle n4
 int l_int_ligne = 0; // 
 int l_int_colonne = 0;
 int l_int_points[] = { 0,0 }; //Compteur de points par joueur
@@ -50,6 +55,48 @@ void initCases(int f_int_mer) {
 	}
 }
 
+// Test logo 
+void logo(void) {
+	Sleep(250);
+	printf("\t\t\t\t\toooooooooo.                .               o8o  oooo  oooo                 ooooo      ooo                                 oooo            \n");
+	printf("\t\t\t\t\t`888'   `Y8b             .o8                    `888  `888                 `888b.     `8'                                 `888            \n");
+	printf("\t\t\t\t\t 888     888  .oooo.   .o888oo  .oooo.    oooo   888   888   .ooooo.        8 `88b.    8   .oooo.   oooo   oooo  .oooo.    888   .ooooo.  \n");
+	printf("\t\t\t\t\t 888oooo888' `P  )88b    888   `P  )88b    888   888   888  d88' `88b       8   `88b.  8  `P  )88b   `88.  .8'  `P  )88b   888  d88' `88b \n");
+	printf("\t\t\t\t\t 888    `88b  .oP8888    888    .oP8888    888   888   888  888  88888      8     P888 8   .oP8888    `888        oP8888   888  888ooo888 \n");
+	printf("\t\t\t\t\t 888    .88P d8(  888    888 . d8(  888    888   888   888  888    8o       8       `888  d8(  888     `888'    d8(  888   888  888    .o \n");
+	printf("\t\t\t\t\t o888bood8P'  `Y888888o   888    Y8888o   o888o o888o o888o `Y8bod8P'      o8o        `8  `Y8888888     `8'     `Y888888o o888o `Y8bod8P' \n");
+	printf("\t\t\t\t\t\t                  __/___                                               __\___                                      \n");
+	printf("\t\t\t\t\t\t           _____ /______|                                             |______\______                               \n");
+	printf("\t\t\t\t\t\t  _______ / _____\_______\_____                                 _____/_______/_____ \ _______                      \n");
+	printf("\t\t\t\t\t\t  \              < < <       |                                   |    > > >                 /                      \n");
+	printf("\t\t\t\t\t\t  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                    \n\n\n");
+
+	Sleep(1500);
+}
+
+//Chargement
+//A OPTI
+void load(void) {
+	printf("Chargement [");
+	for (iBcl = 0; iBcl < TAILLE; iBcl++) {
+		Sleep(TEMPS2);
+		printf("|");
+		Sleep(TEMPS2);
+		printf("|");
+		Sleep(TEMPS2);
+		printf("|");
+		Sleep(TEMPS2);
+		system("CLS");
+	}
+}
+
+//Mode Plein ecran
+void Fscreen(void) {
+	keybd_event(VK_MENU, 0x38, 0, 0); //Appuie sur ALT
+	keybd_event(VK_RETURN, 0x1c, 0, 0); //Appuie ENTREE
+	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0); // Relache ENTREE
+	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0); //Relache ALT
+}
 
 //DEBUG
 void afficheMerDebug(int f_int_player) {
@@ -181,7 +228,6 @@ void checkCoule(int f_int_mer) {
 		}
 	}
 }
-
 
 //fonction qui demande une case au joueur et qui la retourne au format TCoord
 TCoord demandeJoueur() {
@@ -358,6 +404,11 @@ void playDuo(void) {
 
 void main(void) {
 
+	//Idee = mettre la barre de chargement en dessous du logo
+	//Fscreen();
+	logo();
+	load();
+	
 	//Acceuil et regles
 	regles();
 	switch (nombreJoueurs()) {
