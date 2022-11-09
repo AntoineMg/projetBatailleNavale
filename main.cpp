@@ -4,7 +4,7 @@
 #define COLONNES 6
 #define N_BATEAUX 2
 #define COLOR_1 15
-#define COLOR_2 3
+#define COLOR_2 15
 #define TEMPS 50
 #define TEMPS2 200
 #define TAILLE 4
@@ -16,7 +16,7 @@ int iBcl; // compteur de boucle
 int iBcl1; // compteur de boucle n2
 int iBcl2; // compteur de boucle n3
 int iBcl3; // compteur de boucle n4
-int l_int_ligne = 0; // 
+int l_int_ligne = 0; //
 int l_int_colonne = 0;
 int l_int_points[] = { 0,0 }; //Compteur de points par joueur
 bool l_bool_bateauxPlaces = 0;
@@ -131,10 +131,15 @@ void afficheMer(int f_int_mer) {
 	for (iBcl1 = 0; iBcl1 < LIGNES; iBcl1++) {
 		Color(COLOR_1);
 		printf("%c  ", iBcl1 + 65);
-		Color(COLOR_2);
+		Color(COLOR_2 | BACKGROUND_BLUE);
 		//boucle for pour afficher les colonnes
 		for (iBcl2 = 0; iBcl2 < COLONNES; iBcl2++) {
-			printf("%i ", l_enrTab_Mer[f_int_mer][iBcl1][iBcl2].m_bool_touche);
+			if (l_enrTab_Mer[f_int_mer][iBcl1][iBcl2].m_bool_touche == 1) {
+				printf("X ");
+			}
+			else {
+				printf("~ ");
+			}
 		}
 		//retour a la ligne pour rendre le resultat plus clean
 		printf("\n");
@@ -277,7 +282,7 @@ void regles(void) {
 	Sleep(500);
 	printf("Oui = o \nNon = n\n\n");
 	l_char_regles = _getch();
-	if (l_char_regles = 'n') {
+	if (l_char_regles == 'n') {
 		printf("Bah voir sur google\n");
 	}
 	else {
@@ -405,11 +410,13 @@ void playDuo(void) {
 void main(void) {
 
 	//Idee = mettre la barre de chargement en dessous du logo
-	//Fscreen();
+	Fscreen();
 	logo();
 	load();
 	
+	
 	//Acceuil et regles
+	//Color(FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 	regles();
 	switch (nombreJoueurs()) {
 		case 1:
