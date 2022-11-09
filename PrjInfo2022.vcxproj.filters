@@ -29,8 +29,5 @@
     <ClInclude Include="PrjInfo2022.h">
       <Filter>Fichiers sources</Filter>
     </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>Fichiers sources</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

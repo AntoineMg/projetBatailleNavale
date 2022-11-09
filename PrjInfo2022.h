@@ -21,6 +21,12 @@ typedef struct {
 }TCoord;
 
 typedef struct {
+	TCoord m_TCoord_Case1;
+	TCoord m_TCoord_Case2;
+	TCoord m_TCoord_Case3;
+}TBateau;
+
+typedef struct {
 	LPCSTR  m_string_nomFichier;
 	LPCSTR  m_string_nomChanson;
 	int m_int_date;
