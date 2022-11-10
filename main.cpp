@@ -1,48 +1,76 @@
 #include "PrjInfo2022.h"
 
+//PARAMETRES
+
+//Taille de la grille
 #define LIGNES 6
 #define COLONNES 6
+//Nombre de bateaux
 #define N_BATEAUX 2
+//Choix de couleurs
 #define COLOR_1 15
 #define COLOR_2 15
+//Durees
 #define TEMPS 50
 #define TEMPS2 200
-#define TAILLE 4
+//Autres parametres
+#define TAILLE_LOAD 80
 
 
-//Declarations variables globales
-int echecs = 0; //var debug
+//VARIABLES
+
+//Compteurs de Boucles
 int iBcl; // compteur de boucle
 int iBcl1; // compteur de boucle n2
 int iBcl2; // compteur de boucle n3
 int iBcl3; // compteur de boucle n4
+
+//Variables utilisées pour le positionnement
 int l_int_ligne = 0; //
-int l_int_colonne = 0;
-int l_int_points[] = { 0,0 }; //Compteur de points par joueur
-bool l_bool_bateauxPlaces = 0;
-bool l_bool_win = 0;
-int l_int_choix[2];
-int l_int_coordX;
-int l_int_coordY;
-int l_int_nbJoueurs;
-int l_char_regles;
-int l_int_tentatives;
-//Variables Temps
-int l_int_timeDebut;
-int l_int_timeFin;
-int l_int_time;
-int l_int_minutes;
-int l_int_secondes;
-/////
-int l_int_tour;
-int l_int_player;
-bool l_boolTab_Coules[] = { 0,0 };
-int l_int_coules[] = { 0,0 };
-int l_int_coulesAns[] = { 0,0 };
+int l_int_colonne = 0; //
+int l_int_coordX; //coordonnées X utilisée dans certains calculs 
+int l_int_coordY; //coordonnées Y utilisée dans certains calculs
+int l_int_direction; //direction demandee au joueur
 bool l_bool_direction; //l_bool_direction 0 pour vertical et 1 pour horizontal
-TCase l_enrTab_Mer[2][LIGNES][COLONNES];
-TBateau l_enr_Bateaux[N_BATEAUX];
-//mer1D = version affichee a l'utilisateur
+
+//Compteurs
+int l_int_points[] = { 0,0 }; //Compteur de points par joueur
+int l_int_tentatives; //compteur de tentatives
+
+//Verifieurs
+bool l_bool_bateauxPlaces = 0; //Les bateaux ont été correctement placés
+bool l_bool_win = 0; //Etat de la partie (Gagnee 1 | Pas encore gagnée 0)
+
+int l_char_lancement;
+int l_int_choix[2]; //choix
+
+//Saisies par l'Utilisateur
+int l_int_nbJoueurs; //nombre de joueurs de la partie
+int l_char_regles; //connaissance des regles
+
+
+//Variables Temps POSSIBILITE D'AMELIORER EN UTILISANT UN TYPEDEF
+int l_int_timeDebut;//timecode du début de la partie
+int l_int_timeFin;//timecode de la fin de la partie
+int l_int_time;//durée de la partie
+int l_int_minutes;//nombre des minutes du temps
+int l_int_secondes;//nombre des secondes du temps
+
+//Gestion des tours
+int l_int_tour; //Numero du Tour
+int l_int_player; //Numero du joueur dont c'est le tour
+
+//Gestion des bateaux coulés
+int l_int_coules[] = { 0,0 }; // compteur de bateaux coulés dans chaque mer
+int l_int_coulesAns[] = { 0,0 }; //compteur de bateaux coulés dans chaque mer au tour précédent
+bool l_boolTab_Coules[2][N_BATEAUX] = { 0,0 }; //Tableau 2D qui stocke l'etat (coule ou non) de 1 bateau de 1 joueur par case
+
+//Mers et Bateaux
+TCase l_enrTab_Mer[2][LIGNES][COLONNES]; //Declarations des mers (Tableau 3D, voir readme.md pour details)
+TBateau l_enr_Bateaux[N_BATEAUX]; //Declarations des bateaux 
+
+
+//FONCTIONS
 
 //fonction qui initialise toutes les cases de la mer a 0
 void initCases(int f_int_mer) {
@@ -55,39 +83,37 @@ void initCases(int f_int_mer) {
 	}
 }
 
-// Test logo 
+// affichage du logo 
 void logo(void) {
 	Sleep(250);
+	Color(3);
 	printf("\t\t\t\t\toooooooooo.                .               o8o  oooo  oooo                 ooooo      ooo                                 oooo            \n");
 	printf("\t\t\t\t\t`888'   `Y8b             .o8                    `888  `888                 `888b.     `8'                                 `888            \n");
 	printf("\t\t\t\t\t 888     888  .oooo.   .o888oo  .oooo.    oooo   888   888   .ooooo.        8 `88b.    8   .oooo.   oooo   oooo  .oooo.    888   .ooooo.  \n");
 	printf("\t\t\t\t\t 888oooo888' `P  )88b    888   `P  )88b    888   888   888  d88' `88b       8   `88b.  8  `P  )88b   `88.  .8'  `P  )88b   888  d88' `88b \n");
-	printf("\t\t\t\t\t 888    `88b  .oP8888    888    .oP8888    888   888   888  888  88888      8     P888 8   .oP8888    `888        oP8888   888  888ooo888 \n");
-	printf("\t\t\t\t\t 888    .88P d8(  888    888 . d8(  888    888   888   888  888    8o       8       `888  d8(  888     `888'    d8(  888   888  888    .o \n");
+	printf("\t\t\t\t\t 888    `88b  .oP8888    888    .oP8888    888   888   888  8888888888      8     P888 8   .oP8888    `888        oP8888   888  888ooo888 \n");
+	printf("\t\t\t\t\t 888    .88P d8(  888    888 . d8(  888    888   888   888  888    __       8       `888  d8(  888     `888'    d8(  888   888  888    .o \n");
 	printf("\t\t\t\t\t o888bood8P'  `Y888888o   888    Y8888o   o888o o888o o888o `Y8bod8P'      o8o        `8  `Y8888888     `8'     `Y888888o o888o `Y8bod8P' \n");
 	printf("\t\t\t\t\t\t                  __/___                                               __\___                                      \n");
 	printf("\t\t\t\t\t\t           _____ /______|                                             |______\______                               \n");
 	printf("\t\t\t\t\t\t  _______ / _____\_______\_____                                 _____/_______/_____ \ _______                      \n");
 	printf("\t\t\t\t\t\t  \              < < <       |                                   |    > > >                 /                      \n");
 	printf("\t\t\t\t\t\t  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                    \n\n\n");
+	printf("\t\t\t\t\t\t		Created by :    Antoine Morier-Genoud      and       Thomas Guillerme\n\n\n\n");
 
 	Sleep(1500);
 }
 
-//Chargement
-//A OPTI
+//Ecrqn de chargement
 void load(void) {
-	printf("Chargement [");
-	for (iBcl = 0; iBcl < TAILLE; iBcl++) {
+	printf("\t\t\t\t\t\tChargement [");
+	for (iBcl = 0; iBcl < TAILLE_LOAD; iBcl++) {
 		Sleep(TEMPS2);
 		printf("|");
-		Sleep(TEMPS2);
-		printf("|");
-		Sleep(TEMPS2);
-		printf("|");
-		Sleep(TEMPS2);
-		system("CLS");
 	}
+	printf("]");
+	Sleep(800);
+	system("CLS");
 }
 
 //Mode Plein ecran
@@ -123,14 +149,16 @@ void afficheMerDebug(int f_int_player) {
 //fonction pour afficher une mer
 void afficheMer(int f_int_mer) {
 	//affichage de la ligne d'en tete en couleur1
+	Color(BACKGROUND_RED | COLOR_1);
+	printf("=== JOUEUR %i ===\n", f_int_mer);
 	Color(COLOR_1);
-	printf("   1 2 3 4 5 6\n");
+	printf("    1 2 3 4 5 6\n");
 	Color(COLOR_2);
 
 	//boucle for pour afficher les lignes en couleur 2 ainsi que l'en tete de chaque ligne en couleur 1
 	for (iBcl1 = 0; iBcl1 < LIGNES; iBcl1++) {
 		Color(COLOR_1);
-		printf("%c  ", iBcl1 + 65);
+		printf(" %c  ", iBcl1 + 65);
 		Color(COLOR_2 | BACKGROUND_BLUE);
 		//boucle for pour afficher les colonnes
 		for (iBcl2 = 0; iBcl2 < COLONNES; iBcl2++) {
@@ -147,7 +175,7 @@ void afficheMer(int f_int_mer) {
 	}
 }
 
-//fonction pour placer les bateaux
+//fonction pour placer les bateaux automatiquement
 void placeBateau(int f_int_mer) {
 
 	//init aleatoire
@@ -219,16 +247,106 @@ void placeBateau(int f_int_mer) {
 	}
 }
 
+//fonction pour que les joueurs placent les bateaux
+//FONCTIONNE PAS = TROP DE BUGS
+void placeBateauJoueur(int f_int_mer) {
+
+	//init aleatoire
+	srand(time(NULL));
+
+	//boucle pour generer un certain nombre de bateau
+	for (iBcl1 = 0; iBcl1 < N_BATEAUX; iBcl1++) {
+
+		//demande user de la direction du bateau
+		do {
+			printf("\nJoueur %i Saisir la direction (v ou h) : ",f_int_mer);
+			l_int_direction = _getch();
+			printf("%i", l_int_direction);
+		} while ((l_int_direction != 118) && (l_int_direction != 112));
+
+		//transformation en bool
+		if (l_int_direction == 118) {
+			l_bool_direction = 0;
+		}
+		if (l_int_direction == 112) {
+			l_bool_direction = 1;
+		}
+
+		//reset var
+		l_bool_bateauxPlaces = 0;
+
+		//execution fonction placement si bateau vertical
+		if (l_bool_direction == 0) {
+
+			//replace le bateau tant que celui-ci n'est pas dans une case libre
+			do {
+				//determination aleatoire de la premiere case du bateau
+				printf("\nJoueur %i, Saisir la ligne : ", f_int_mer);
+				l_int_coordY = _getch();
+				printf("\nJoueur %i Saisir la colonne : ", f_int_mer);
+				scanf_s("%i", &l_int_coordX);
+
+				//Si la case choisie aleatoirement et les 2 suivantes verticales sont libres, alors on place le bateau
+				if ((l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne].m_int_bateau == 0) && (l_enrTab_Mer[f_int_mer][l_int_ligne + 1][l_int_colonne].m_int_bateau == 0) && (l_enrTab_Mer[f_int_mer][l_int_ligne + 2][l_int_colonne].m_int_bateau == 0)) {
+					//ajout du bateau dans la mer
+					l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne].m_int_bateau = 1;
+					l_enrTab_Mer[f_int_mer][l_int_ligne + 1][l_int_colonne].m_int_bateau = 1;
+					l_enrTab_Mer[f_int_mer][l_int_ligne + 2][l_int_colonne].m_int_bateau = 1;
+					//stockage du bateau
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne = l_int_ligne + 1;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne = l_int_ligne + 2;
+					//confirmation que le bateau est place
+					l_bool_bateauxPlaces = 1;
+				}
+			} while (l_bool_bateauxPlaces == 0);
+
+		}
+
+		//execution fonction placement si bateau horizontal
+		else {
+
+			do {
+				//determination aleatoire de la premiere case du bateau
+				l_int_ligne = rand() % 6;
+				l_int_colonne = rand() % 4;
+
+				//Si la case choisie aleatoirement et les 2 suivantes horizontales sont libres, alors on place le bateau
+				if ((l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne].m_int_bateau == 0) && (l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne + 1].m_int_bateau == 0) && (l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne + 2].m_int_bateau == 0)) {
+					//ajout du bateau dans la mer
+					l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne].m_int_bateau = 1;
+					l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne + 1].m_int_bateau = 1;
+					l_enrTab_Mer[f_int_mer][l_int_ligne][l_int_colonne + 2].m_int_bateau = 1;
+					//Stockage du bateau
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne = l_int_colonne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne = l_int_colonne + 1;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne = l_int_ligne;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne = l_int_colonne + 2;
+					l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne = l_int_ligne;
+					//confirmation que le bateau est place
+					l_bool_bateauxPlaces = 1;
+				}
+			} while (l_bool_bateauxPlaces == 0);
+		}
+	}
+}
+
+
+//fonction pour verifie si il y a un bateau coule dans une mer
 //fonctionne parfsois ex pour E456 et pour CDE4 et pour A234
 void checkCoule(int f_int_mer) {
 	l_int_coules[f_int_mer] = 0;
 	for (iBcl1 = 0; iBcl1 < N_BATEAUX; iBcl1++) {
 		if ((l_enrTab_Mer[f_int_mer][l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case1.m_int_colonne].m_bool_touche == 1) && (l_enrTab_Mer[f_int_mer][l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case2.m_int_colonne].m_bool_touche == 1) && (l_enrTab_Mer[f_int_mer][l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_ligne][l_enr_Bateaux[iBcl1].m_TCoord_Case3.m_int_colonne].m_bool_touche == 1)) {
-			l_boolTab_Coules[iBcl] = 1;
+			l_boolTab_Coules[f_int_mer][iBcl] = 1;
 		}
 	}
 	for (iBcl2 = 0; iBcl2 < N_BATEAUX; iBcl2++) {
-		if (l_boolTab_Coules[iBcl2] == 1) {
+		if (l_boolTab_Coules[f_int_mer][iBcl2] == 1) {
 			l_int_coules[f_int_mer]++;
 		}
 	}
@@ -247,7 +365,7 @@ TCoord demandeJoueur() {
 	} while (int((l_int_coordY) < 97) || (int(l_int_coordY) > 102));
 
 	do {
-		printf("Saisir la colonne : \n");
+		printf("\nSaisir la colonne : ");
 		scanf_s("%i", &l_int_coordX);
 	} while ((l_int_coordX < 1) || (l_int_coordX > 6));
 
@@ -260,6 +378,7 @@ TCoord demandeJoueur() {
 	return(l_enr_case);
 }
 
+//Verifie si un bateau etait present dans la case selectionne
 bool checkCase(TCoord l_enr_essai,int f_int_mer) {
 	if (l_enrTab_Mer[f_int_mer][l_enr_essai.m_int_ligne][l_enr_essai.m_int_colonne].m_int_bateau == 1) {
 		//printf("Touche\n");
@@ -282,30 +401,32 @@ void regles(void) {
 	Sleep(500);
 	printf("Oui = o \nNon = n\n\n");
 	l_char_regles = _getch();
+	system("CLS");
 	if (l_char_regles == 'n') {
 		printf("Bah voir sur google\n");
 	}
 	else {
 		printf("Super, alors allons-y !\n");
 	}
+	Sleep(1000);
+	system("CLS");
 }
 
+//Fonction qui demande a l'utilisateur combien de joueurs veulent jouer et qui retourne le nombre de joueurs
 int nombreJoueurs(void) {
 	printf("Combien de joueurs ? \n");
-	//TRANSFORMER EN SWITCH
 	scanf_s("%i", &l_int_nbJoueurs);
+	system("CLS");
 	return(l_int_nbJoueurs);
 }
 
+//Fonction qui demarre une partie en mode solo
 void playSolo(void) {
+	system("CLS");
 	l_int_player = 0;
 	//placement des bateaux
 	placeBateau(l_int_player);
-	//delai pour affichage avant suppression
-	Sleep(3000);
-	system("CLS");
-
-	afficheMerDebug(l_int_player);
+	afficheMer(l_int_player);
 	Sleep(3000);
 
 	//Debut du chrono
@@ -317,7 +438,7 @@ void playSolo(void) {
 		//Si le bateau est touche on affiche touche ou coule
 		if (checkCase(l_enr_saisie, l_int_player)) {
 			//si le bateau est coule on affiche coule
-			checkCoule(1);
+			checkCoule(0);
 			if (l_int_coules[l_int_player] > l_int_coulesAns[l_int_player]) {
 				l_int_coulesAns[l_int_player] = l_int_coules[l_int_player];
 				system("CLS");
@@ -347,8 +468,11 @@ void playSolo(void) {
 	}
 }
 
+//Fonction qui demarre une partie en mode 2 joueurs
 void playDuo(void) {
 	//placement des bateaux des deux joueurs
+	//placeBateauJoueur(1);
+	//placeBateauJoueur(2);
 	placeBateau(1);
 	placeBateau(2);
 
@@ -407,28 +531,38 @@ void playDuo(void) {
 
 }
 
+
 void main(void) {
 
-	//Idee = mettre la barre de chargement en dessous du logo
 	Fscreen();
+	PlaySoundA("Intro2.wav", NULL, SND_ASYNC);
+	Sleep(2000);
 	logo();
 	load();
+	PlaySoundA("Menu.wav", NULL, SND_ASYNC);
+	printf("Recommencer le message (Y ou y) ou lancer le programme (autre touche)\n");
+	l_char_lancement = _getch();
+	if ((l_char_lancement == 'Y') || (l_char_lancement == 'y')) {
+		PlaySoundA("Menu.wav", NULL, SND_ASYNC);
+	}
 	
 	
 	//Acceuil et regles
 	//Color(FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 	regles();
-	switch (nombreJoueurs()) {
-		case 1:
-			playSolo();
-		case 2:
-			playDuo();
-		default:
-			printf("Tant pis, au revoir !!!");
+	l_int_nbJoueurs = nombreJoueurs();
+	if (l_int_nbJoueurs == 1) {
+		PlaySoundA("Theme.wav", NULL, SND_ASYNC | SND_LOOP);
+		playSolo();
+	}
+	else if (l_int_nbJoueurs == 2) {
+		PlaySoundA("Theme.wav", NULL, SND_ASYNC | SND_LOOP);
+		playDuo();
+	}
+	else{
+		printf("Tant pis, au revoir !!!");
 	}
 	
-
-
 	//Obtention de la duree de la partie
 	l_int_timeFin = GetTickCount();
 	l_int_time = l_int_timeFin - l_int_timeDebut;
